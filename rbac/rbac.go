@@ -10,7 +10,7 @@ var authEnforcer *casbin.Enforcer
 func init() {
 	var err error
 	// https://casbin.org/en/editor
-	authEnforcer, err = casbin.NewEnforcer("../conf/rbac_model.conf", "../conf/rbac_policy.csv")
+	authEnforcer, err = casbin.NewEnforcer("./conf/rbac_model.conf", "./conf/rbac_policy.csv")
 	if err != nil {
 		log.Fatal(err)
 	}
