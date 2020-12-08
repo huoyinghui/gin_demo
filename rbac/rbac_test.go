@@ -42,5 +42,6 @@ func TestRBACWithRoot(t *testing.T)  {
 	if err != nil {
 		t.Error(err)
 	}
-	testEnforce(t, authEnforcerWithRoot,"bob", "data2", "read", true)
+	testEnforce(t, authEnforcerWithRoot,"bob", "data2", "read", false)
+	testEnforce(t, authEnforcerWithRoot,"root", "data2", "read", true)
 }
