@@ -12,7 +12,9 @@ func SetupRouter() *gin.Engine {
 	})
 	return r
 }
+
 func init() {
+
 }
 
 func main() {
