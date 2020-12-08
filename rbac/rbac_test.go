@@ -290,4 +290,5 @@ func TestPolicyStore(t *testing.T)  {
 	testEnforce(t, authEnforcer,"alice", "data1", "read", true)
 	testEnforce(t, authEnforcer,"alice", "data2", "read", false)
 	testEnforce(t, authEnforcer,"bob", "data2", "write", true)
+	testEnforce(t, authEnforcer,"alice", "data2", "write", true)
 }
