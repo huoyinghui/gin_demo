@@ -5,6 +5,7 @@ import (
 	"github.com/casbin/casbin/v2/model"
 	fileadapter "github.com/casbin/casbin/v2/persist/file-adapter"
 	gormadapter "github.com/casbin/gorm-adapter/v2"
+	_ "github.com/go-sql-driver/mysql"
 	"testing"
 )
 
@@ -268,20 +269,23 @@ func TestModelStore(t *testing.T)  {
 }
 
 func TestPolicyStore(t *testing.T)  {
-	//在前面的例子中，我们都是将策略存储在policy.csv文件中。一般在实际应用中，很少使用文件存储
-	//casbin以第三方适配器的方式支持多种存储方式包括MySQL/MongoDB/Redis/Etcd等
+	// 在前面的例子中，我们都是将策略存储在policy.csv文件中。一般在实际应用中，很少使用文件存储
+	// casbin以第三方适配器的方式支持多种存储方式包括MySQL/MongoDB/Redis/Etcd等
 	// https://casbin.org/docs/en/adapters
-	//下面我们介绍使用Gorm Adapter
+	// https://casbin.org/docs/zh-CN/policy-storage
+	// 下面我们介绍使用Gorm Adapter
+	// 1.import mysql
+	// 2.NewAdapter
 	Adapter, err := gormadapter.NewAdapter("mysql", "root:@tcp(127.0.0.1:3306)/")
 	if err != nil {
 		t.Error(err)
 	}
 	t.Logf("Adapter:%v", Adapter)
 
-	//authEnforcer, err := casbin.NewEnforcer("./conf/rbac_model.conf", Adapter)
-	//if err != nil {
-	//	t.Error(err)
-	//}
-	//t.Logf("authEnforcer:%v", authEnforcer)
-	//testEnforce(t, authEnforcer,"alice", "data1", "read", true)
+	authEnforcer, err := casbin.NewEnforcer("./conf/rbac_model.conf", Adapter)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Logf("authEnforcer:%v", authEnforcer)
+	testEnforce(t, authEnforcer,"alice", "data1", "read", true)
 }
