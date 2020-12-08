@@ -53,7 +53,7 @@ func TestACLWithoutUser(t *testing.T)  {
 }
 
 func TestRBAC(t *testing.T) {
-	// setup session store
+	// 用户->角色
 	authEnforcer, err := casbin.NewEnforcer(
 		"./conf/rbac_model.conf", "./conf/rbac_policy.csv")
 	if err != nil {
@@ -95,4 +95,18 @@ func TestRBACAndCURD(t *testing.T) {
 	testEnforce(t, authEnforcer, "bob", "data2", "read", true)
 	authEnforcer.DeletePermissionForUser("bob", "data2", "read")
 	testEnforce(t, authEnforcer,"bob", "data2", "read", false)
+}
+
+
+func TestRBACResourceRoles(t *testing.T) {
+	// 用户->角色 g(r.sub, p.sub)
+	// 资源->角色 g2(r.obj, p.obj)
+	authEnforcer, err := casbin.NewEnforcer(
+		"./conf/rbac_model_resource_roles.conf", "./conf/rbac_policy_resource_roles.csv")
+	if err != nil {
+		t.Error(err)
+	}
+	log.Printf("authEnforcer:%v", authEnforcer)
+	testEnforce(t, authEnforcer,"alice", "data2", "read", false)
+	testEnforce(t, authEnforcer,"alice", "data2", "write", true)
 }
