@@ -31,3 +31,34 @@ func checkWithoutUser(e *casbin.Enforcer, obj, act string) bool {
 	ok, _ := e.Enforce(obj, act)
 	return ok
 }
+
+func checkWithDomain(e *casbin.Enforcer, sub, domain, obj, act string) bool {
+	ok, _ := e.Enforce(sub, domain, obj, act)
+	return ok
+}
+
+type Object struct {
+	Name  string
+	Owner string
+}
+
+type Subject struct {
+	Name string
+	Hour int
+}
+
+
+func checkABAC(e *casbin.Enforcer, sub Subject, obj, act string)  bool {
+	ok, _ := e.Enforce(sub, obj, act)
+	return ok
+}
+
+func checkABACV1(e *casbin.Enforcer, sub string, obj Object, act string)  bool {
+	ok, _ := e.Enforce(sub, obj, act)
+	return ok
+}
+
+func checkABACV2(e *casbin.Enforcer, sub Subject, obj Object, act string)  bool {
+	ok, _ := e.Enforce(sub, obj, act)
+	return ok
+}
