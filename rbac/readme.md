@@ -23,9 +23,10 @@ m = g(r.sub, p.sub) && r.obj == p.obj && r.act == p.act
 
 ## ABAC
 
+ABAC（attribute base access list）
+
 RBAC模型对于实现比较规则的、相对静态的权限管理非常有用。
 但是对于特殊的、动态的需求，RBAC就显得有点力不从心了。
 
 例如，我们在不同的时间段对数据data实现不同的权限控制。
 正常工作时间9:00-18:00所有人都可以读写data，其他时间只有数据所有者能读写。
-~~~~

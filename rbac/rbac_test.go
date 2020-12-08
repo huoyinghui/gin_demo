@@ -2,7 +2,9 @@ package rbac
 
 import (
 	"github.com/casbin/casbin/v2"
-	"log"
+	"github.com/casbin/casbin/v2/model"
+	fileadapter "github.com/casbin/casbin/v2/persist/file-adapter"
+	gormadapter "github.com/casbin/gorm-adapter/v2"
 	"testing"
 )
 
@@ -54,6 +56,7 @@ func TestACL(t *testing.T)  {
 	if err != nil {
 		t.Error(err)
 	}
+	t.Logf("authEnforcer:%v", authEnforcer)
 	testEnforce(t, authEnforcer,"alice", "data1", "read", true)
 	testEnforce(t, authEnforcer,"bob", "data2", "write", true)
 	testEnforce(t, authEnforcer,"root", "data2", "read", false)
@@ -65,6 +68,7 @@ func TestACLWithRoot(t *testing.T)  {
 	if err != nil {
 		t.Error(err)
 	}
+	t.Logf("authEnforcer:%v", authEnforcer)
 	testEnforce(t, authEnforcer,"alice", "data1", "read", true)
 	testEnforce(t, authEnforcer,"bob", "data2", "write", true)
 	testEnforce(t, authEnforcer,"root", "data2", "read", true)
@@ -76,6 +80,7 @@ func TestACLWithoutUser(t *testing.T)  {
 	if err != nil {
 		t.Error(err)
 	}
+	t.Logf("authEnforcer:%v", authEnforcer)
 	testEnforceWithoutUser(t, authEnforcer, "data1", "read", true)
 	testEnforceWithoutUser(t, authEnforcer, "data2", "write", true)
 }
@@ -87,7 +92,7 @@ func TestRBAC(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	log.Printf("authEnforcer:%v", authEnforcer)
+	t.Logf("authEnforcer:%v", authEnforcer)
 	testEnforce(t, authEnforcer, "alice", "data1", "write", false)
 	testEnforce(t, authEnforcer,"bob", "data2", "read", false)
 	testEnforce(t, authEnforcer,"bob", "data2", "write", true)
@@ -101,6 +106,7 @@ func TestRBACWithRoot(t *testing.T)  {
 	if err != nil {
 		t.Error(err)
 	}
+	t.Logf("authEnforcer:%v", authEnforcer)
 	testEnforce(t, authEnforcer,"bob", "data2", "read", false)
 	testEnforce(t, authEnforcer,"root", "data2", "read", true)
 }
@@ -113,15 +119,15 @@ func TestRBACAndCURD(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	log.Printf("authEnforcer:%v", authEnforcer)
+	t.Logf("authEnforcer:%v", authEnforcer)
 	testEnforce(t, authEnforcer,"bob", "data2", "read", false)
-	authEnforcer.AddRoleForUser("bob", "data2_admin")
+	_, _ = authEnforcer.AddRoleForUser("bob", "data2_admin")
 	testEnforce(t, authEnforcer, "bob", "data2", "read", true)
-	authEnforcer.DeleteRoleForUser("bob", "data2_admin")
+	_, _ = authEnforcer.DeleteRoleForUser("bob", "data2_admin")
 	testEnforce(t, authEnforcer, "bob", "data2", "read", false)
-	authEnforcer.AddPermissionForUser("bob", "data2", "read")
+	_, _ = authEnforcer.AddPermissionForUser("bob", "data2", "read")
 	testEnforce(t, authEnforcer, "bob", "data2", "read", true)
-	authEnforcer.DeletePermissionForUser("bob", "data2", "read")
+	_, _ = authEnforcer.DeletePermissionForUser("bob", "data2", "read")
 	testEnforce(t, authEnforcer,"bob", "data2", "read", false)
 }
 
@@ -134,7 +140,7 @@ func TestRBACResourceRoles(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	log.Printf("authEnforcer:%v", authEnforcer)
+	t.Logf("authEnforcer:%v", authEnforcer)
 	testEnforce(t, authEnforcer,"alice", "data2", "read", false)
 	testEnforce(t, authEnforcer,"alice", "data2", "write", true)
 }
@@ -148,7 +154,7 @@ func TestRBACTreeRoles(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	log.Printf("authEnforcer:%v", authEnforcer)
+	t.Logf("authEnforcer:%v", authEnforcer)
 	testEnforce(t, authEnforcer,"bob", "dev.data", "read", true)
 	testEnforce(t, authEnforcer,"bob", "dev.data", "write", true)
 	testEnforce(t, authEnforcer,"bob", "prod.data", "read", true)
@@ -170,7 +176,7 @@ func TestRBACDomain(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	log.Printf("authEnforcer:%v", authEnforcer)
+	t.Logf("authEnforcer:%v", authEnforcer)
 	testEnforceWithDomain(t, authEnforcer,"alice", "domain1", "data1", "read", true)
 	testEnforceWithDomain(t, authEnforcer,"alice", "domain1", "data2", "read", false)
 }
@@ -181,7 +187,7 @@ func TestABAC(t *testing.T)  {
 	if err != nil {
 		t.Error(err)
 	}
-	log.Printf("authEnforcer:%v", authEnforcer)
+	t.Logf("authEnforcer:%v", authEnforcer)
 	// 任意请求，在9-18点可以访问.
 	sub := Subject{
 		Name: "alice",
@@ -202,7 +208,7 @@ func TestABACV1(t *testing.T)  {
 	if err != nil {
 		t.Error(err)
 	}
-	log.Printf("authEnforcer:%v", authEnforcer)
+	t.Logf("authEnforcer:%v", authEnforcer)
 	// data只有Owner拥有访问权限
 	o := Object{
 		Name: "data1",
@@ -218,7 +224,7 @@ func TestABACV2(t *testing.T)  {
 	if err != nil {
 		t.Error(err)
 	}
-	log.Printf("authEnforcer:%v", authEnforcer)
+	t.Logf("authEnforcer:%v", authEnforcer)
 	// data只有Owner拥有访问权限
 	o := Object{
 		Name: "data1",
@@ -240,4 +246,42 @@ func TestABACV2(t *testing.T)  {
 	testEnforceABACV2(t, authEnforcer, subBob, o, "read", true)
 	testEnforceABACV2(t, authEnforcer, subBobNight, o, "read", false)
 	testEnforceABACV2(t, authEnforcer, subAlice, o, "read", true)
+}
+
+func TestModelStore(t *testing.T)  {
+	// 代码中动态初始化模型
+	m := model.NewModel()
+	m.AddDef("r", "r", "sub, obj, act")
+	m.AddDef("p", "p", "sub, obj, act")
+	m.AddDef("e", "e", "some(where (p.eft == allow))")
+	m.AddDef("m", "m", "r.sub == p.sub && r.obj == p.obj && r.act == p.act")
+
+	a := fileadapter.NewAdapter("./conf/acl_policy.csv")
+	authEnforcer, err := casbin.NewEnforcer(m, a)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Logf("authEnforcer:%v", authEnforcer)
+	testEnforce(t, authEnforcer,"alice", "data1", "read", true)
+	testEnforce(t, authEnforcer,"bob", "data2", "write", true)
+	testEnforce(t, authEnforcer,"root", "data2", "read", false)
+}
+
+func TestPolicyStore(t *testing.T)  {
+	//在前面的例子中，我们都是将策略存储在policy.csv文件中。一般在实际应用中，很少使用文件存储
+	//casbin以第三方适配器的方式支持多种存储方式包括MySQL/MongoDB/Redis/Etcd等
+	// https://casbin.org/docs/en/adapters
+	//下面我们介绍使用Gorm Adapter
+	Adapter, err := gormadapter.NewAdapter("mysql", "root:@tcp(127.0.0.1:3306)/")
+	if err != nil {
+		t.Error(err)
+	}
+	t.Logf("Adapter:%v", Adapter)
+
+	//authEnforcer, err := casbin.NewEnforcer("./conf/rbac_model.conf", Adapter)
+	//if err != nil {
+	//	t.Error(err)
+	//}
+	//t.Logf("authEnforcer:%v", authEnforcer)
+	//testEnforce(t, authEnforcer,"alice", "data1", "read", true)
 }
