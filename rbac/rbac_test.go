@@ -177,14 +177,67 @@ func TestRBACDomain(t *testing.T) {
 
 func TestABAC(t *testing.T)  {
 	// abac 可以不需要policy
+	authEnforcer, err := casbin.NewEnforcer("./conf/abac_model_hour.conf")
+	if err != nil {
+		t.Error(err)
+	}
+	log.Printf("authEnforcer:%v", authEnforcer)
+	// 任意请求，在9-18点可以访问.
+	sub := Subject{
+		Name: "alice",
+		Hour: 9,
+	}
+	subNight := Subject{
+		Name: "alice",
+		Hour: 19,
+	}
+	testEnforceABAC(t, authEnforcer, sub, "xxx", "data", true)
+	testEnforceABAC(t, authEnforcer, subNight, "xxx", "read", false)
+}
+
+
+func TestABACV1(t *testing.T)  {
+	// abac 可以不需要policy
 	authEnforcer, err := casbin.NewEnforcer("./conf/abac_model.conf")
 	if err != nil {
 		t.Error(err)
 	}
 	log.Printf("authEnforcer:%v", authEnforcer)
+	// data只有Owner拥有访问权限
 	o := Object{
 		Name: "data1",
 		Owner: "alice",
 	}
 	testEnforceABACV1(t, authEnforcer, "alice", o, "read", true)
+	testEnforceABACV1(t, authEnforcer, "bob", o, "read", false)
+}
+
+func TestABACV2(t *testing.T)  {
+	// abac 可以不需要policy
+	authEnforcer, err := casbin.NewEnforcer("./conf/abac_model_hour.conf")
+	if err != nil {
+		t.Error(err)
+	}
+	log.Printf("authEnforcer:%v", authEnforcer)
+	// data只有Owner拥有访问权限
+	o := Object{
+		Name: "data1",
+		Owner: "alice",
+	}
+	subBob := Subject{
+		Name: "bob",
+		Hour: 18,
+	}
+	subBobNight := Subject{
+		Name: "bob",
+		Hour: 20,
+	}
+	subAlice := Subject{
+		Name: "alice",
+		Hour: 20,
+	}
+	// 任意请求，在9-18点可以访问. 除此之外，只能拥有者访问
+	testEnforceABACV2(t, authEnforcer, subBob, o, "read", true)
+	testEnforceABACV2(t, authEnforcer, subBobNight, o, "read", false)
+	testEnforceABACV2(t, authEnforcer, subAlice, o, "read", true)
 }
