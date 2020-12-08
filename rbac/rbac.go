@@ -7,6 +7,16 @@ import (
 
 var authEnforcer *casbin.Enforcer
 
+type Object struct {
+	Name  string
+	Owner string
+}
+
+type Subject struct {
+	Name string
+	Hour int
+}
+
 func init() {
 	var err error
 	// https://casbin.org/en/editor
@@ -36,17 +46,6 @@ func checkWithDomain(e *casbin.Enforcer, sub, domain, obj, act string) bool {
 	ok, _ := e.Enforce(sub, domain, obj, act)
 	return ok
 }
-
-type Object struct {
-	Name  string
-	Owner string
-}
-
-type Subject struct {
-	Name string
-	Hour int
-}
-
 
 func checkABAC(e *casbin.Enforcer, sub Subject, obj, act string)  bool {
 	ok, _ := e.Enforce(sub, obj, act)
