@@ -30,3 +30,19 @@ RBAC模型对于实现比较规则的、相对静态的权限管理非常有用�
 
 例如，我们在不同的时间段对数据data实现不同的权限控制。
 正常工作时间9:00-18:00所有人都可以读写data，其他时间只有数据所有者能读写。
+
+## py
+
+adapter:
+```shell
+https://github.com/pycasbin/django-casbin
+https://github.com/pycasbin/pycasbin
+https://github.com/pycasbin/django-orm-adapter
+```
+
+django app:
+```shell
+https://github.com/pycasbin/pycasbin
+```
+
+
