@@ -52,28 +52,20 @@ func TestACLWithoutUser(t *testing.T)  {
 	testEnforceWithoutUser(t, authEnforcer, "data2", "write", true)
 }
 
-
-func TestRBACV1(t *testing.T) {
+func TestRBAC(t *testing.T) {
 	// setup session store
 	authEnforcer, err := casbin.NewEnforcer(
-		"./conf/rbac_model_with_root.conf", "./conf/rbac_policy.csv")
+		"./conf/rbac_model.conf", "./conf/rbac_policy.csv")
 	if err != nil {
 		t.Error(err)
 	}
 	log.Printf("authEnforcer:%v", authEnforcer)
 	testEnforce(t, authEnforcer, "alice", "data1", "write", false)
-	testEnforce(t, authEnforcer,"alice", "data2", "write", true)
 	testEnforce(t, authEnforcer,"bob", "data2", "read", false)
 	testEnforce(t, authEnforcer,"bob", "data2", "write", true)
-	authEnforcer.AddRoleForUser("bob", "data2_admin")
-	testEnforce(t, authEnforcer, "bob", "data2", "read", true)
-	authEnforcer.DeleteRoleForUser("bob", "data2_admin")
-	testEnforce(t, authEnforcer, "bob", "data2", "read", false)
-	authEnforcer.AddPermissionForUser("bob", "data2", "read")
-	testEnforce(t, authEnforcer, "bob", "data2", "read", true)
-	authEnforcer.DeletePermissionForUser("bob", "data2", "read")
-	testEnforce(t, authEnforcer,"bob", "data2", "read", false)
+	testEnforce(t, authEnforcer,"alice", "data2", "write", true)
 }
+
 
 func TestRBACWithRoot(t *testing.T)  {
 	authEnforcer, err := casbin.NewEnforcer(
@@ -83,4 +75,24 @@ func TestRBACWithRoot(t *testing.T)  {
 	}
 	testEnforce(t, authEnforcer,"bob", "data2", "read", false)
 	testEnforce(t, authEnforcer,"root", "data2", "read", true)
+}
+
+
+func TestRBACAndCURD(t *testing.T) {
+	// setup session store
+	authEnforcer, err := casbin.NewEnforcer(
+		"./conf/rbac_model_with_root.conf", "./conf/rbac_policy.csv")
+	if err != nil {
+		t.Error(err)
+	}
+	log.Printf("authEnforcer:%v", authEnforcer)
+	testEnforce(t, authEnforcer,"bob", "data2", "read", false)
+	authEnforcer.AddRoleForUser("bob", "data2_admin")
+	testEnforce(t, authEnforcer, "bob", "data2", "read", true)
+	authEnforcer.DeleteRoleForUser("bob", "data2_admin")
+	testEnforce(t, authEnforcer, "bob", "data2", "read", false)
+	authEnforcer.AddPermissionForUser("bob", "data2", "read")
+	testEnforce(t, authEnforcer, "bob", "data2", "read", true)
+	authEnforcer.DeletePermissionForUser("bob", "data2", "read")
+	testEnforce(t, authEnforcer,"bob", "data2", "read", false)
 }
