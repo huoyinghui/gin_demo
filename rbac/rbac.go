@@ -26,3 +26,8 @@ func check(e *casbin.Enforcer, sub, obj, act string) bool {
 	//}
 	return ok
 }
+
+func checkWithoutUser(e *casbin.Enforcer, obj, act string) bool {
+	ok, _ := e.Enforce(obj, act)
+	return ok
+}
